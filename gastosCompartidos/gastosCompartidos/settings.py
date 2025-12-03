@@ -76,8 +76,17 @@ WSGI_APPLICATION = 'gastosCompartidos.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',  
+        'NAME': 'gastoscompartidos',  # El nombre de la DB creada en MySQL
+        'USER': 'root',       
+        'PASSWORD': '',     
+        'HOST': 'localhost',                   # La dirección donde corre MySQL (ej: 'localhost' o una IP)
+        'PORT': '3306',
+
+        # Opcional, pero recomendado para Django y MySQL
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
     }
 }
 
