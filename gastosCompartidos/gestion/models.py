@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser     #Sirve para
 
 #CLASE USUARIO
 class Usuario(AbstractUser):
-    edad_usuario = models.IntegerField(max_length=255, unique=True)
+    edad_usuario = models.IntegerField(null=True, blank=True)
     telefono = models.CharField(max_length=20, blank=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
     
@@ -41,9 +41,9 @@ class Gasto(models.Model):
     #-------------------------------------------------
 
     titulo = models.CharField(max_length=150)
-    montoTotalGasto = models.DecimalField(decimal_places=2,  validators=[MinValueValidator(Decimal('0.01'))])
+    montoTotalGasto = models.DecimalField(max_digits=10, decimal_places=2,  validators=[MinValueValidator(Decimal('0.01'))])
     fechaCreacion = models.DateTimeField(auto_now_add= True) #se llena de manera automatica
-    fechaActualizacion = models.DateTimeField(auto_now_add=True) #ultima fecha de actualizacion
+    fechaActualizacion = models.DateTimeField(auto_now=True) #ultima fecha de actualizacion
     link_gasto = models.CharField(max_length=100, unique=True, blank=True,db_index=True)
     division_tipo = models.CharField(max_length=20, choices=DIVISION_CHOICES, default=DIVISION_EQUITATIVA)
     estado= models.CharField(max_length=20, choices=ESTADO_CHOICES, default=ESTADO_ACTIVO)
@@ -80,8 +80,8 @@ class Participante(models.Model):
     #Se puede agregar participantes que no son usuarios del sistema
     nombreParticipante = models.CharField(max_length=150)
     email_partipante = models.EmailField(blank=True)  #opcional para invitados
-    monto_a_pagar = models.DecimalField(decimal_places=2, default=Decimal('0.00'), validators=[MinValueValidator(Decimal('0.00'))])
-    montoPagado = models.DecimalField(decimal_places=2, default=Decimal('0.00'), validators=[MinValueValidator(Decimal('0.00'))])
+    monto_a_pagar = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), validators=[MinValueValidator(Decimal('0.00'))])
+    montoPagado = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), validators=[MinValueValidator(Decimal('0.00'))])
     estado_pago = models.CharField(max_length=20, choices=ESTADO_CHOICES, default=ESTADO_PENDIENTE)
 
     class Meta:
@@ -112,3 +112,17 @@ class Transaccion(models.Model):
     deudor = models.ForeignKey(Participante, on_delete=models.CASCADE, related_name='pagos_realizados')
     acreedor = models.ForeignKey(Participante, on_delete=models.CASCADE, related_name='pagos_recibidos')
     
+    monto = models.DecimalField(max_digits=10,decimal_places=2,validators=[MinValueValidator(Decimal('0.01'))])
+    estado_transaccion = models.CharField(max_length=20,choices=ESTADO_CHOICES,default=ESTADO_PENDIENTE)
+    fechaCreacion = models.DateTimeField(auto_now_add=True)
+    fechaActualizacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'transacciones'
+        ordering = ['-fechaCreacion']
+        indexes = [
+            models.Index(fields=['gasto', 'estado_transaccion']),
+        ]
+    
+    def __str__(self):
+        return f"{self.deudor.nombreParticipante} → {self.acreedor.nombreParticipante}: ${self.monto}"
