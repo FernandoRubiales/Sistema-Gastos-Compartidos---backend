@@ -1,6 +1,8 @@
 from decimal import Decimal
 from django.db import transaction
 from gastosCompartidos.gestion.models import Gasto, Participante
+from django.core.exceptions import ValidationError
+
 
 #Servicio que maneja la logica de negocio de gastos
 class GastoService:
@@ -40,9 +42,17 @@ class GastoService:
                 nombreParticipante = participantes_datos['nombre'],
                 email_partipante = participantes_datos.get('email',''),
                 montoPagado = Decimal(str(participantes_datos.get('montoPagado', 0)))
-                monto_a_pagar = monto_cada_participante[i]
-            )
+                monto_a_pagar = monto_cada_participante[i])
         return gasto
     
     #Funcion que valida las reglas de negocio
-    
+    def validarDatosGastos(monto_total, participantes_datos, division_tipo):
+        #Tiene que haber dos participantes minimos para realizar un gasto compartido
+        if len(participantes_datos < 2):
+            raise ValidationError("El gasto debe tener al menos 2 participantes")                   #con raise lanzamos el error si falla
+        
+        #La suma del monto pagado, debe ser menor o igual al monto_total
+        suma_pagada = Decimal('0.00')
+        for p in participantes_datos:
+            monto_pagado = Decimal(str(p.get('montoPagado', 0)))
+            suma_pagada = suma_pagada + monto_pagado
