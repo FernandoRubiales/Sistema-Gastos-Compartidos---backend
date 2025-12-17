@@ -92,6 +92,28 @@ class Participante(models.Model):
             models.Index(fields=['email_participante']),
         ]
 
+    #Calculo automatico con property
+    @property
+    def monto_pendiente(self):
+        #Calcula cuanto le deben o debe
+        monto_pendiente = self.monto_a_pagar - self.montoPagado
+        return monto_pendiente
+
+    @property
+    def le_deben_dinero(self):
+        if self.monto_pendiente < 0 :
+            return True
+        
+    @property
+    def debe_dinero(self):
+        if self.monto_pendiente > 0:
+            return True
+    
+    @property
+    def quedo_saldado(self):
+        if self.monto_pendiente == 0:
+            return True
+
 #CLASE DE LA TRANSACCION REALIZADA
 
 class Transaccion(models.Model):

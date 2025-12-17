@@ -27,7 +27,7 @@ class GastoService:
         )
 
         #Calcular el monto para cada participante
-        monto_cada_participante = GastoService.calcular_montos_pagar(
+        monto_a_pagar = GastoService.calcular_montos_pagar(
             monto_total = monto_total,
             num_participantes = len(participantes_datos),
             division_tipo = division_tipo,
@@ -41,14 +41,14 @@ class GastoService:
                 usuario = participantes_datos.get('usuario'),
                 nombreParticipante = participantes_datos['nombre'],
                 email_partipante = participantes_datos.get('email',''),
-                montoPagado = Decimal(str(participantes_datos.get('montoPagado', 0)))
-                monto_a_pagar = monto_cada_participante[i])
+                montoPagado = Decimal(str(participantes_datos.get('montoPagado', 0))),
+                monto_a_pagar = monto_a_pagar[i])
         return gasto
     
     #Funcion que valida las reglas de negocio
-    def validarDatosGastos(monto_total, participantes_datos, division_tipo):
+    def validarDatosGasto(monto_total, participantes_datos, division_tipo):
         #Tiene que haber dos participantes minimos para realizar un gasto compartido
-        if len(participantes_datos < 2):
+        if len(participantes_datos) < 2:
             raise ValidationError("El gasto debe tener al menos 2 participantes")                   #con raise lanzamos el error si falla
         
         #La suma del monto pagado, debe ser menor o igual al monto_total
@@ -86,7 +86,7 @@ class GastoService:
             
             return [
                 Decimal(str(p['monto_a_pagar'])) 
-                for p in participantes_data
+                for p in participantes_datos
             ]
         
         else:
